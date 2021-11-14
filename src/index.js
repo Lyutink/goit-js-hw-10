@@ -3,19 +3,17 @@ import './css/styles.css';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
 
-const DEBOUNCE_DELAY = 800;
-
+const DEBOUNCE_DELAY = 300;
 
 let countryInput = '';
 
 const inputRef = document.querySelector('#search-box');
-const resultListRef = document.querySelector('.country-list');
+const countryListRef = document.querySelector('.country-list');
 
 inputRef.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 
 
 function onInput(e) {
-
     countryInput = e.target.value;
     countryInput = countryInput.trim();
     if (!countryInput) {
@@ -23,7 +21,6 @@ function onInput(e) {
         return;
     }
     
-
     HTTPServise.fetchCountries(countryInput)
         .then(countrys => {
             if (!countrys) {
@@ -39,8 +36,8 @@ function onInput(e) {
 }
 
 function clearMarkup() {
-        resultListRef.classList.add('is-hidden');
-        resultListRef.innerHTML = '';
+        countryListRef.classList.add('is-hidden');
+        countryListRef.innerHTML = '';
 }
 
 function checkQuantityCountrys(countrys) {
@@ -52,42 +49,36 @@ function checkQuantityCountrys(countrys) {
             },);
         return;
     }
-    
-    if (countrys.length > 2) {
-        renderMarkupMany(countrys);
-        return;
-    }
 
-    renderMarkupOne(countrys);
+    (countrys.length > 2) ? renderMarkupMany(countrys) : renderMarkupOne(countrys);
 }
+
 
 function renderMarkupOne(countrys) {
-    //console.log("dddd", countrys.lenghts);
     const markup = countrys.map(
-        country => `
+        ({ flags, name, capital, population, languages }) => `
         <li>
-        <img src="${country.flags.svg}" alt="" width="30"><span>${country.name.official}</span>
+        <img src="${flags.svg}" alt="" width="30"><span>${name.official}</span>
         </li>
-        <li>Capital: ${country.capital}</li>
-        <li>Population: ${country.population}</li>
-        <li>Languages: ${country.languages}</li>
+        <li>Capital: ${capital}</li>
+        <li>Population: ${population}</li>
+        <li>Languages: ${(Object.values(languages)).join(', ')}</li>
         `
     ).join('');
 
-    resultListRef.innerHTML = markup;
-    resultListRef.classList.remove('is-hidden');
+    countryListRef.innerHTML = markup;
+    countryListRef.classList.remove('is-hidden');
 }
 
+
 function renderMarkupMany(countrys) {
-    //console.log("dddd", countrys.lenghts);
     const markup = countrys.map(
         country => `
         <li>
         <img src="${country.flags.svg}" alt="" width="30"><span>${country.name.official}</span>
-        </li>
-        `
+        </li> `
     ).join('');
 
-    resultListRef.innerHTML = markup;
-    resultListRef.classList.remove('is-hidden');
+    countryListRef.innerHTML = markup;
+    countryListRef.classList.remove('is-hidden');
 }
